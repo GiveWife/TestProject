@@ -1,7 +1,6 @@
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import core.Controller;
+
+import java.io.*;
 import java.nio.file.Files;
 import java.util.Formatter;
 
@@ -29,10 +28,11 @@ public class Main {
 
         System.out.println("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
 
-        System.out.println("Delimeter: " + identifyLineDelimiter(formattedContent));*/
+        System.out.println("Delimeter: " + identifyLineDelimiter(formattedContent));
 
         try {
             byte[] fileContent = Files.readAllBytes(file.toPath());
+            System.out.println("Amount bytes: " + fileContent.length);
 
             BufferedReader reader = new BufferedReader(new FileReader(file));
             String s = "";
@@ -51,9 +51,15 @@ public class Main {
             System.out.println("String to bytes: " + formatter2.toString());
 
 
+            FileWriter writer = new FileWriter(new File("res/test.txt"));
+            writer.write("hello" + System.lineSeparator() + ",hello");
+            writer.close();
+
+
         } catch(IOException e) {
 
         }
+
 
         String alpha = " !\"#$%&\\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
         for(int i = 0; i < alpha.length(); i++) {
@@ -62,8 +68,10 @@ public class Main {
             for(byte b : bytesForChar) f.format("%02x", b);
             String byteForm = f.toString();
             System.out.println("Letter: '" + alpha.substring(i, i + 1) + "': " + byteForm);
-        }
+        } */
 
+        Controller c = new Controller(new String[]{});
+        c.loop();
 
 
     }
