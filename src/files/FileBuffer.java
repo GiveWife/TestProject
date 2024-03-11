@@ -44,7 +44,7 @@ public class FileBuffer {
 
     // Prints the content of the file relative to the coordinates
     public void render(int startX, int startY, int width, int height) {
-        String log = "";
+        //String log = "";
         Terminal.leaveRawInputMode();
 
         String s = new String(byteContent);
@@ -69,7 +69,7 @@ public class FileBuffer {
                 xAdd = 0;
                 yAdd += 1;
                 i += lineAdd; // Possibly skip 1 more byte incase of 0d0a
-                log += " > Found line sep before max width at " + (i-1) + "\n";
+                //log += " > Found line sep before max width at " + (i-1) + "\n";
 
             // When max width is reached, we find the next MANUAL line separator and starting printing from there.
             } else if(xAdd >= width) {
@@ -79,19 +79,22 @@ public class FileBuffer {
                     if(separatorIndex >= i)
                         i = separatorIndex+1;
 
-                log += " > new Line separator found at index " + i + "\n";
+                //log += " > new Line separator found at index " + i + "\n";
 
                 yAdd++;
                 xAdd = 0;
 
-                log += " > Printing at: [" + (startX + xAdd) + ", " + (startY + yAdd) + "]\n";
+                System.out.flush();
+
+                //log += " > Printing at: [" + (startX + xAdd) + ", " + (startY + yAdd) + "]\n";
                 Terminal.printText(startY + yAdd, startX + xAdd, character);
                 xAdd++;
 
             // No line separator found, we print text normally
             } else {
 
-                log += "Printing at: [" + (startX + xAdd) + ", " + (startY + yAdd) + "]\n";
+                System.out.flush();
+                //log += "Printing at: [" + (startX + xAdd) + ", " + (startY + yAdd) + "]\n";
                 Terminal.printText(startY + yAdd, startX + xAdd, character);
                 xAdd++;
 
@@ -99,7 +102,7 @@ public class FileBuffer {
 
         }
 
-        System.out.println("\n" + log);
+        //System.out.println("\n" + log);
 
     }
 
