@@ -35,11 +35,9 @@ public class FileHolder {
     /**
      * saves file
      */
-    public void save(String fileContent) {
+    public void save(byte[] fileContent) {
         try {
-            FileWriter writer = new FileWriter(this.fd);
-            writer.write(fileContent);
-            writer.close();
+            Files.write(Path.of(this.path), fileContent);
         } catch (IOException e) {
             System.out.println("[FileHolder] Exception while trying to save file content");
         }
