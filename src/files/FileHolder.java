@@ -1,9 +1,10 @@
 package files;
 
+import core.Controller;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Formatter;
 
 /*
@@ -11,16 +12,15 @@ import java.util.Formatter;
  *  andere functie dan buffer
  */
 public class FileHolder {
-    private final String lineSeparator;
+    public static final String lineSeparator = Controller.getLineSeparator();
     private final String path;
     private File fd;
 
     /**
      * Creates File object with given path
      */
-    public FileHolder(String path, String lineSeparator) {
+    public FileHolder(String path) {
         this.fd = new File(path);
-        this.lineSeparator = lineSeparator;
         this.path = path;
     }
 
@@ -29,7 +29,7 @@ public class FileHolder {
     }
 
     String getLineSeparator() {
-        return this.lineSeparator == null ? null : new String(this.lineSeparator);
+        return this.lineSeparator == null ? FileAnalyserUtil.formatBytes(System.lineSeparator().getBytes()) : this.lineSeparator;
     }
 
     /**
@@ -38,6 +38,14 @@ public class FileHolder {
     public void save(byte[] fileContent) {
         try {
             Files.write(Path.of(this.path), fileContent);
+        } catch (IOException e) {
+            System.out.println("[FileHolder] Exception while trying to save file content");
+        }
+    }
+
+    public void save(String content) {
+        try {
+            Files.write(Path.of(this.path), content.getBytes());
         } catch (IOException e) {
             System.out.println("[FileHolder] Exception while trying to save file content");
         }
@@ -66,10 +74,10 @@ public class FileHolder {
             String fileContentFormatted = formatterContent.toString();
 
             // We zullen enkel voor windows ("0d0a") kijken voor een match.
-               // Contains 0d0a, code is 0a
+            // Contains 0d0a, code is 0a
             if((fileContentFormatted.contains("0d0a") && lineSeperatorCode.equals("0a"))
-               // Contains 0a, not 0d0a, code is 0d0a
-            || (fileContentFormatted.contains("0a") && !fileContentFormatted.contains("0d0a") &&
+                    // Contains 0a, not 0d0a, code is 0d0a
+                    || (fileContentFormatted.contains("0a") && !fileContentFormatted.contains("0d0a") &&
                     lineSeperatorCode.equals("0d0a")))
                 return "Error: Invalid file contents - Wrong line separator".getBytes();
 
@@ -86,7 +94,7 @@ public class FileHolder {
     }
 
     public FileHolder clone() {
-        return new FileHolder(new String(this.path), lineSeparator == null ? null : new String(this.lineSeparator));
+        return new FileHolder(new String(this.path));
     }
 
     /**
@@ -94,6 +102,13 @@ public class FileHolder {
      */
     public boolean equals(FileHolder holder) {
         return this.path.equals(holder.path);
+    }
+
+    public static boolean areContentsEqual(byte[] arr1, byte[] arr2) {
+        if(arr1.length != arr2.length) return false;
+        for(int i = 0; i < arr1.length; i++)
+            if(arr1[i] != arr2[i]) return false;
+        return true;
     }
 
 }

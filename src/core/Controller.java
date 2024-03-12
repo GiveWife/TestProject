@@ -1,21 +1,52 @@
 package core;
 
 import files.FileBuffer;
+import files.FileHolder;
 import io.github.btj.termios.Terminal;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 
 public class Controller {
+
+    private static String lineSeparator;
+
+    /**
+     * Root layout
+     */
+    private FileBuffer buffer;
 
     /**
      * Size of the terminal
      */
     private int width, height;
-    private FileBuffer buffer;
 
     public Controller(String[] args) {
-        this.buffer = new FileBuffer("res/test.txt", System.lineSeparator());
+        this.buffer = new FileBuffer("res/test.txt");
+    }
+
+    /**
+     * A beautiful start for a beautiful project
+     */
+    public static void main(String[] args) throws IOException, RuntimeException {
+        // If no arguments given
+        if(args.length == 0 ||
+                (
+                        // Or --lf || --crlf is given
+                        (args[0].equals("--lf") || (args[0].equals("--crlf")))
+                                // But amount of args is 1
+                                && args.length == 1
+                )
+        ) { // Then no path is specified, and we cannot open
+            throw new RuntimeException("TextR needs at least one specified file");
+        }
+
+        Controller btj = new Controller(args);
+        btj.loop();
     }
 
     /**
@@ -30,8 +61,6 @@ public class Controller {
 
         // Reading terminal dimensions for correct rendering
         retrieveDimensions();
-
-        this.buffer.render(1, 1, width, height);
 
         // Main loop
         for ( ; ; ) {
@@ -56,11 +85,12 @@ public class Controller {
                     break;
                 // Line separator
                 case 13:
-                    enterSeparator();
+                    enterLineSeparator();
                     break;
                 // Character input
                 default:
                     enterText((char) c);
+                    //render();
                     break;
 
             }
@@ -68,7 +98,8 @@ public class Controller {
             // Flush stdIn & Recalculate dimensions
             System.in.skipNBytes(System.in.available());
             retrieveDimensions();
-            this.buffer.render(1, 1, width, height);
+
+            //this.buffer.render(1,1, 40, 20);
 
         }
 
@@ -77,34 +108,39 @@ public class Controller {
     /**
      * Renders the layout with the terminal current height & width
      */
-    public void render() {
-        // TODO root layout has to render its children on itself.
-        //this.rootLayout.render(this.width, this.height);
+    void render() {
+
     }
 
     /**
      * Saves the FileBuffer's content to its file.
      */
-    public void saveBuffer() {
-
+    void saveBuffer() {
     }
 
     /**
      * Moves insertion point in a file buffer
      */
-    public void moveCursor(char code) {
-        this.buffer.moveInsertionPoint(height, width, code);
+    void moveCursor(char code) {
     }
 
-    public void enterSeparator() {
-        buffer.enterInsertionPoint();
-    }
-
-    public void enterText(char str) {
+    /**
+     * Handles inputted text and redirects them to the active .
+     */
+    void enterText(char str) {
+        // Silently ignore non-ASCII characters.
         if(Charset.forName("ASCII").newEncoder().canEncode(str)) {
-            this.buffer.write(String.valueOf(str));
         }
     }
+
+    /**
+     * Line separator is non-ASCII, so cannot enter through {@link Controller#enterText(char)}
+     */
+    void enterLineSeparator() {
+    }
+
+    // Test functions
+
 
     /**
      * <p>Calculates the dimensions of the terminal
@@ -146,12 +182,9 @@ public class Controller {
             tempByte = Terminal.readByte();
         }
 
-        this.width = width;
-        this.height = height;
-
     }
 
-    String getLineSeparator(String[] args) {
+    public static String setLineSeparator(String[] args) {
         if(args[0].equals("--lf"))
             return "0a";
         else if(args[0].equals("--crlf"))
@@ -159,19 +192,7 @@ public class Controller {
         else return null;
     }
 
-    /**
-     * Temporary helper
-     */
-    private void print(String... s) {
-        for(String si : s) {
-            System.out.println(si);
-        }
+    public static String getLineSeparator(){
+        return Controller.lineSeparator;
     }
-
-    private static String getPrint(String[] s) {
-        String out = "";
-        for(String l : s) out += l + ", ";
-        return out;
-    }
-
 }
